@@ -1,0 +1,31 @@
+{
+  "name": "tool-use-budget-skill",
+  "version": "0.1.0",
+  "description": "Dry-run agent skill for planning tool, time, token, and side-effect budgets.",
+  "type": "module",
+  "bin": {
+    "tool-use-budget": "./bin/tool-use-budget.js"
+  },
+  "scripts": {
+    "test": "node --test",
+    "check": "node scripts/check.js",
+    "smoke": "node bin/tool-use-budget.js --brief fixtures/task.md --profile fixtures/profile.json --format markdown --max-minutes 45"
+  },
+  "keywords": [
+    "agent-skill",
+    "tool-budget",
+    "run-planning",
+    "dry-run"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "bin",
+    "src",
+    "docs",
+    "SKILL.md",
+    "README.md"
+  ]
+}

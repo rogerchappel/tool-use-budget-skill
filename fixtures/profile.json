@@ -1,0 +1,6 @@
+{
+  "language": "javascript",
+  "packageManager": "npm",
+  "testCommands": ["npm test", "npm run check", "npm run smoke"],
+  "riskFlags": ["public-repo", "github-pr"]
+}

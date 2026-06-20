@@ -10,6 +10,12 @@ npm run smoke
 node bin/tool-use-budget.js --brief fixtures/task.md --profile fixtures/profile.json --format json
 ```
 
+## Install
+
+```bash
+npm install -g tool-use-budget-skill
+```
+
 ## Example
 
 ```bash
@@ -29,6 +35,18 @@ tool-use-budget \
   "testCommands": ["npm test", "npm run check"],
   "riskFlags": ["public-repo", "github-pr"]
 }
+```
+
+## Verify
+
+Run the release-readiness check before promoting the package:
+
+```bash
+npm run check
+npm test
+npm run smoke
+npm run package:smoke
+npm run release:check
 ```
 
 ## Safety Notes

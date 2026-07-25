@@ -26,6 +26,15 @@ tool-use-budget \
   --max-external-writes 0
 ```
 
+`--max-minutes` must be a positive integer and defaults to 60. Every generated
+stage receives at least five minutes, so the command rejects a limit smaller
+than five minutes multiplied by the number of stages required by the brief.
+Stage allocations always add up exactly to the declared limit.
+
+`--max-external-writes` must be a nonnegative integer and defaults to 0. The
+same constraints apply when passing `maxMinutes` and `maxExternalWrites` to
+the `buildBudget` library function.
+
 ## Repo Profile
 
 ```json

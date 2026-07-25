@@ -34,8 +34,8 @@ export function analyzeBrief(brief) {
 }
 
 export function buildBudget(brief, profile = DEFAULT_PROFILE, options = {}) {
-  const maxMinutes = Number(options.maxMinutes || 60);
-  const maxExternalWrites = Number(options.maxExternalWrites || 0);
+  const maxMinutes = validateIntegerOption("maxMinutes", options.maxMinutes, 60, 1);
+  const maxExternalWrites = validateIntegerOption("maxExternalWrites", options.maxExternalWrites, 0, 0);
   const intent = analyzeBrief(brief);
   const stages = [];
 
@@ -60,10 +60,10 @@ export function buildBudget(brief, profile = DEFAULT_PROFILE, options = {}) {
       : ["review generated output"];
   stages.push(stage("Verification", 0.2, 2500, ["shell", "file-read"], verificationCommands));
 
-  const totalWeight = stages.reduce((sum, item) => sum + item.weight, 0);
-  const normalized = stages.map((item) => ({
+  const stageMinutes = allocateStageMinutes(stages, maxMinutes);
+  const normalized = stages.map((item, index) => ({
     name: item.name,
-    minutes: Math.max(5, Math.round((item.weight / totalWeight) * maxMinutes)),
+    minutes: stageMinutes[index],
     tokenBudget: item.tokenBudget,
     allowedTools: item.allowedTools,
     gates: item.gates
@@ -126,6 +126,47 @@ export function renderJson(budget) {
 
 function stage(name, weight, tokenBudget, allowedTools, gates) {
   return { name, weight, tokenBudget, allowedTools, gates };
+}
+
+function validateIntegerOption(name, value, defaultValue, minimum) {
+  const resolved = value === undefined ? defaultValue : Number(value);
+  if (!Number.isFinite(resolved) || !Number.isInteger(resolved) || resolved < minimum) {
+    const constraint = minimum === 0 ? "a nonnegative integer" : "a positive integer";
+    throw new TypeError(`${name} must be ${constraint}.`);
+  }
+  return resolved;
+}
+
+function allocateStageMinutes(stages, maxMinutes) {
+  const minimumPerStage = 5;
+  const minimumTotal = stages.length * minimumPerStage;
+  if (maxMinutes < minimumTotal) {
+    throw new RangeError(
+      `maxMinutes must be at least ${minimumTotal} for ${stages.length} stages (${minimumPerStage} minutes each).`
+    );
+  }
+
+  const remaining = maxMinutes - minimumTotal;
+  const totalWeight = stages.reduce((sum, item) => sum + item.weight, 0);
+  const allocations = stages.map((item, index) => {
+    const exactShare = (item.weight / totalWeight) * remaining;
+    return {
+      index,
+      minutes: minimumPerStage + Math.floor(exactShare),
+      remainder: exactShare - Math.floor(exactShare)
+    };
+  });
+  const allocated = allocations.reduce((sum, item) => sum + item.minutes, 0);
+
+  allocations
+    .slice()
+    .sort((left, right) => right.remainder - left.remainder || left.index - right.index)
+    .slice(0, maxMinutes - allocated)
+    .forEach((item) => {
+      allocations[item.index].minutes += 1;
+    });
+
+  return allocations.map((item) => item.minutes);
 }
 
 function buildWarnings(intent, profile, maxExternalWrites, verificationCommands) {

@@ -10,12 +10,22 @@ npm run smoke
 node bin/tool-use-budget.js --brief fixtures/task.md --profile fixtures/profile.json --format json
 ```
 
-## Install
+## Install from source
+
+The package is not yet published to the npm registry. Build and install the
+tarball from a source checkout:
 
 ```bash
-npm install -g tool-use-budget-skill
+git clone https://github.com/rogerchappel/tool-use-budget-skill.git
+cd tool-use-budget-skill
+npm pack --json
+# version 0.1.0 produces tool-use-budget-skill-0.1.0.tgz
+npm install --global ./tool-use-budget-skill-0.1.0.tgz
+tool-use-budget --help
 ```
 
+The tarball name follows `<package-name>-<package.json version>.tgz`; use the
+`filename` reported by `npm pack --json` after a version change.
 ## Example
 
 ```bash
@@ -51,12 +61,13 @@ the `buildBudget` library function.
 Run the release-readiness check before promoting the package:
 
 ```bash
-npm run check
-npm test
-npm run smoke
-npm run package:smoke
 npm run release:check
 ```
+
+This packs the project into an operating-system temporary directory, installs
+it into a clean temporary consumer, and runs both `tool-use-budget --help` and
+a minimal brief through the packaged binary. Temporary files are removed when
+the check finishes.
 
 ## Safety Notes
 

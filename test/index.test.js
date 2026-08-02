@@ -12,6 +12,25 @@ describe("analyzeBrief", () => {
   });
 });
 
+describe("CLI file and format operands", () => {
+  function runCli(...args) {
+    return spawnSync(process.execPath, ["bin/tool-use-budget.js", ...args], { encoding: "utf8" });
+  }
+
+  for (const flag of ["--brief", "--profile", "--format"]) {
+    for (const trailingArgs of [[], ["--help"]]) {
+      it(`rejects ${flag} without an operand before ${trailingArgs[0] ?? "end of argv"}`, () => {
+        const prefix = flag === "--brief" ? [] : ["--brief", "fixtures/task.md"];
+        const result = runCli(...prefix, flag, ...trailingArgs);
+
+        assert.equal(result.status, 1);
+        assert.match(result.stderr, new RegExp(`${flag} requires a value`));
+        assert.match(result.stderr, /Usage: tool-use-budget/);
+      });
+    }
+  }
+});
+
 describe("CLI numeric limits", () => {
   function runCli(...args) {
     return spawnSync(process.execPath, ["bin/tool-use-budget.js", "--brief", "fixtures/task.md", ...args], {
@@ -29,13 +48,15 @@ describe("CLI numeric limits", () => {
   });
 
   for (const flag of ["--max-minutes", "--max-external-writes"]) {
-    it(`rejects a missing ${flag} operand`, () => {
-      const result = runCli(flag);
+    for (const trailingArgs of [[], ["--format", "json"]]) {
+      it(`rejects ${flag} without an operand before ${trailingArgs[0] ?? "end of argv"}`, () => {
+        const result = runCli(flag, ...trailingArgs);
 
-      assert.equal(result.status, 1);
-      assert.match(result.stderr, new RegExp(`${flag} requires a numeric value`));
-      assert.match(result.stderr, /Usage: tool-use-budget/);
-    });
+        assert.equal(result.status, 1);
+        assert.match(result.stderr, new RegExp(`${flag} requires a numeric value`));
+        assert.match(result.stderr, /Usage: tool-use-budget/);
+      });
+    }
   }
 
   for (const value of ["0", "-1", "NaN", "1.5"]) {

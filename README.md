@@ -45,6 +45,10 @@ Stage allocations always add up exactly to the declared limit.
 same constraints apply when passing `maxMinutes` and `maxExternalWrites` to
 the `buildBudget` library function.
 
+Every value-taking option requires its operand immediately after the flag.
+This includes `--brief`, `--profile`, `--format`, and both numeric limits;
+another option cannot be used as the operand.
+
 ## Repo Profile
 
 ```json

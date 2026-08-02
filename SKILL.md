@@ -13,6 +13,8 @@ Use this skill before a long or side-effect-sensitive agent run, especially for 
 
 Each generated stage has a five-minute minimum. The maximum-minutes value must
 be large enough to cover every stage selected from the task brief.
+Every CLI value flag requires its operand immediately after the flag; an
+option token cannot stand in for a missing file, format, or numeric value.
 
 ## Side-Effect Boundaries
 

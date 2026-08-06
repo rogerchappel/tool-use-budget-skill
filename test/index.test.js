@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { describe, it } from "node:test";
-import { analyzeBrief, buildBudget, renderMarkdown } from "../src/index.js";
+import { analyzeBrief, buildBudget, renderJson, renderMarkdown } from "../src/index.js";
 
 describe("analyzeBrief", () => {
   it("detects code, content, and external write intent", () => {
@@ -142,5 +142,33 @@ describe("buildBudget", () => {
     const budget = buildBudget("Research latest docs and draft launch copy.", undefined, { maxMinutes: 30 });
     assert.match(renderMarkdown(budget), /Tool Use Budget/);
     assert.match(renderMarkdown(budget), /Research/);
+  });
+
+  it("keeps piped verification commands inside the five-column stage table", () => {
+    const budget = buildBudget("Implement code and tests.", {
+      language: "javascript",
+      packageManager: "npm",
+      testCommands: ["npm test | tee results.log"],
+      riskFlags: []
+    });
+    const stageRows = renderMarkdown(budget).split("\n").filter((line) => line.startsWith("| "));
+
+    assert.ok(stageRows.every((row) => row.split("|").length === 7));
+    assert.match(stageRows.at(-1), /npm test &#124; tee results\.log/);
+  });
+
+  it("normalizes special profile fields only when rendering Markdown", () => {
+    const budget = buildBudget("Review the result.", {
+      language: "Type|Script\n<script>",
+      packageManager: "pnpm\\core_*",
+      testCommands: ["check\nnext | collect"],
+      riskFlags: []
+    });
+    const markdown = renderMarkdown(budget);
+
+    assert.match(markdown, /Language: Type&#124;Script<br>&lt;script&gt;/);
+    assert.match(markdown, /Package manager: pnpm&#92;core\\_\\*/);
+    assert.match(markdown, /check<br>next &#124; collect/);
+    assert.deepEqual(JSON.parse(renderJson(budget)), budget);
   });
 });

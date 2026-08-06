@@ -60,6 +60,11 @@ another option cannot be used as the operand.
 }
 ```
 
+Profile values remain unchanged in JSON output. In Markdown output, reserved
+Markdown characters and HTML delimiters are escaped, while line breaks are
+normalized to `<br>`. This keeps commands containing pipes, backslashes, or
+newlines inside the documented five-column stage table.
+
 ## Verify
 
 Run the release-readiness check before promoting the package:

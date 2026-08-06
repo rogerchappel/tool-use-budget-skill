@@ -98,8 +98,8 @@ export function renderMarkdown(budget) {
     "",
     `Max minutes: ${budget.summary.maxMinutes}`,
     `Max external writes: ${budget.summary.maxExternalWrites}`,
-    `Language: ${budget.summary.language}`,
-    `Package manager: ${budget.summary.packageManager}`,
+    `Language: ${normalizeMarkdownText(budget.summary.language)}`,
+    `Package manager: ${normalizeMarkdownText(budget.summary.packageManager)}`,
     "",
     "## Stages",
     "",
@@ -107,17 +107,29 @@ export function renderMarkdown(budget) {
     "| --- | ---: | ---: | --- | --- |"
   ];
   for (const item of budget.stages) {
-    lines.push(`| ${item.name} | ${item.minutes} | ${item.tokenBudget} | ${item.allowedTools.join(", ")} | ${item.gates.join("; ")} |`);
+    const cells = [item.name, item.minutes, item.tokenBudget, item.allowedTools.join(", "), item.gates.join("; ")];
+    lines.push(`| ${cells.map(normalizeMarkdownText).join(" | ")} |`);
   }
   lines.push("", "## Warnings");
   if (budget.warnings.length) {
-    for (const warning of budget.warnings) lines.push(`- ${warning}`);
+    for (const warning of budget.warnings) lines.push(`- ${normalizeMarkdownText(warning)}`);
   } else {
     lines.push("- None.");
   }
   lines.push("", "## Stop Conditions");
-  for (const condition of budget.stopConditions) lines.push(`- ${condition}`);
+  for (const condition of budget.stopConditions) lines.push(`- ${normalizeMarkdownText(condition)}`);
   return `${lines.join("\n")}\n`;
+}
+
+function normalizeMarkdownText(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\\", "&#92;")
+    .replaceAll("|", "&#124;")
+    .replace(/\r\n?|\n/g, "<br>")
+    .replace(/([`*_{}\[\]()!])/g, "\\$1");
 }
 
 export function renderJson(budget) {

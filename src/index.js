@@ -27,10 +27,16 @@ export function analyzeBrief(brief) {
   return {
     wantsCode: /\b(code|implement|fix|test|repo|cli|library|build)\b/.test(text),
     wantsResearch: /\b(research|browse|source|company|market|latest|verify)\b/.test(text),
-    wantsExternalWrite: /\b(push|publish|send|email|crm|github|issue|pr|deploy|release)\b/.test(text),
+    wantsExternalWrite: hasExternalWriteIntent(text),
     wantsContent: /\b(post|copy|launch|script|readme|docs|content)\b/.test(text),
     highRisk: /\b(legal|medical|financial|credential|secret|production|customer)\b/.test(text)
   };
+}
+
+function hasExternalWriteIntent(text) {
+  const writeAction = "(?:create|open|file|update|edit|comment(?: on)?|close|merge|approve|publish|post|send|email|message|push|deploy|release)";
+  const externalTarget = "(?:github|issue|pull request|pr|branch|commit|email|message|post|content|release|deployment|crm)";
+  return new RegExp(`\\b${writeAction}\\b(?:\\s+\\S+){0,5}\\s+\\b${externalTarget}\\b`).test(text);
 }
 
 export function buildBudget(brief, profile = DEFAULT_PROFILE, options = {}) {

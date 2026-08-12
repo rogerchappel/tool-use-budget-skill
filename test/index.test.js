@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 import { analyzeBrief, buildBudget, renderJson, renderMarkdown } from "../src/index.js";
 
@@ -9,6 +12,38 @@ describe("analyzeBrief", () => {
     assert.equal(intent.wantsCode, true);
     assert.equal(intent.wantsContent, true);
     assert.equal(intent.wantsExternalWrite, true);
+  });
+
+  it("treats GitHub issue and PR research as read-only", () => {
+    const intent = analyzeBrief("Research the latest GitHub issue and verify the related PR.");
+
+    assert.equal(intent.wantsResearch, true);
+    assert.equal(intent.wantsExternalWrite, false);
+  });
+
+  for (const brief of ["Create a GitHub issue.", "Send an issue update.", "Publish a PR.", "Open a pull request."]) {
+    it(`detects external write intent in: ${brief}`, () => {
+      assert.equal(analyzeBrief(brief).wantsExternalWrite, true);
+    });
+  }
+});
+
+describe("CLI intent analysis", () => {
+  it("does not warn about external writes for read-only GitHub research", () => {
+    const directory = mkdtempSync(join(tmpdir(), "tool-use-budget-test-"));
+    const briefPath = join(directory, "brief.md");
+    writeFileSync(briefPath, "Research the latest GitHub issue and verify the related PR.\n");
+
+    try {
+      const result = spawnSync(process.execPath, ["bin/tool-use-budget.js", "--brief", briefPath, "--format", "json", "--max-minutes", "30"], { encoding: "utf8" });
+      assert.equal(result.status, 0, result.stderr);
+      const budget = JSON.parse(result.stdout);
+      assert.equal(budget.intent.wantsResearch, true);
+      assert.equal(budget.intent.wantsExternalWrite, false);
+      assert.doesNotMatch(budget.warnings.join("\n"), /external writes/);
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
   });
 });
 
@@ -136,6 +171,14 @@ describe("buildBudget", () => {
   it("warns about external writes without allowance", () => {
     const budget = buildBudget("Push a branch and create a GitHub PR.", undefined, { maxExternalWrites: 0 });
     assert.match(budget.warnings.join("\n"), /external writes/);
+  });
+
+  it("does not warn about external writes for research-only GitHub briefs", () => {
+    const budget = buildBudget("Research the latest GitHub issue.", undefined, { maxMinutes: 30 });
+
+    assert.equal(budget.intent.wantsResearch, true);
+    assert.equal(budget.intent.wantsExternalWrite, false);
+    assert.doesNotMatch(budget.warnings.join("\n"), /external writes/);
   });
 
   it("renders markdown output", () => {

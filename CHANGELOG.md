@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Distinguish read-only GitHub, issue, and pull-request research from external-write actions.
 - Validate CLI and library numeric limits and reject missing or infeasible values.
 - Allocate stage minutes deterministically without exceeding the declared total.
 

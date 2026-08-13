@@ -47,6 +47,22 @@ try {
   const budget = JSON.parse(result.stdout);
   assert.equal(budget.summary.maxMinutes, 30);
   assert.equal(budget.stages.reduce((sum, stage) => sum + stage.minutes, 0), 30);
+
+  for (const actionBrief of [
+    "Delete the GitHub issue.",
+    "Remove the release.",
+    "Assign the pull request."
+  ]) {
+    fs.writeFileSync(brief, `${actionBrief}\n`);
+    const actionResult = run(
+      bin,
+      ["--brief", brief, "--format", "json", "--max-external-writes", "0"],
+      consumerDirectory
+    );
+    const actionBudget = JSON.parse(actionResult.stdout);
+    assert.equal(actionBudget.intent.wantsExternalWrite, true, actionBrief);
+    assert.match(actionBudget.warnings.join("\n"), /external writes/, actionBrief);
+  }
   console.log(`package smoke ok: ${report[0].filename}`);
 } finally {
   fs.rmSync(temporaryRoot, { recursive: true, force: true });

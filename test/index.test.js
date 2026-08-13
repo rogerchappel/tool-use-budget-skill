@@ -21,9 +21,30 @@ describe("analyzeBrief", () => {
     assert.equal(intent.wantsExternalWrite, false);
   });
 
-  for (const brief of ["Create a GitHub issue.", "Send an issue update.", "Publish a PR.", "Open a pull request."]) {
+  for (const brief of [
+    "Create a GitHub issue.",
+    "Send an issue update.",
+    "Publish a PR.",
+    "Open a pull request.",
+    "Delete the GitHub issue.",
+    "Remove the release.",
+    "Assign the pull request."
+  ]) {
     it(`detects external write intent in: ${brief}`, () => {
       assert.equal(analyzeBrief(brief).wantsExternalWrite, true);
+      const budget = buildBudget(brief, undefined, { maxExternalWrites: 0 });
+      assert.equal(budget.intent.wantsExternalWrite, true);
+      assert.match(budget.warnings.join("\n"), /external writes/);
+    });
+  }
+
+  for (const brief of [
+    "Research how to delete a GitHub issue.",
+    "Verify whether to remove the release.",
+    "Find out who to assign the PR to."
+  ]) {
+    it(`keeps research phrasing read-only in: ${brief}`, () => {
+      assert.equal(analyzeBrief(brief).wantsExternalWrite, false);
     });
   }
 });
@@ -45,6 +66,33 @@ describe("CLI intent analysis", () => {
       rmSync(directory, { recursive: true, force: true });
     }
   });
+
+  for (const brief of [
+    "Delete the GitHub issue.",
+    "Remove the release.",
+    "Assign the pull request."
+  ]) {
+    it(`warns when an external-write allowance is zero for: ${brief}`, () => {
+      const directory = mkdtempSync(join(tmpdir(), "tool-use-budget-test-"));
+      const briefPath = join(directory, "brief.md");
+      writeFileSync(briefPath, `${brief}\n`);
+
+      try {
+        const result = spawnSync(process.execPath, [
+          "bin/tool-use-budget.js",
+          "--brief", briefPath,
+          "--format", "json",
+          "--max-external-writes", "0"
+        ], { encoding: "utf8" });
+        assert.equal(result.status, 0, result.stderr);
+        const budget = JSON.parse(result.stdout);
+        assert.equal(budget.intent.wantsExternalWrite, true);
+        assert.match(budget.warnings.join("\n"), /external writes/);
+      } finally {
+        rmSync(directory, { recursive: true, force: true });
+      }
+    });
+  }
 });
 
 describe("CLI file and format operands", () => {

@@ -34,8 +34,8 @@ export function analyzeBrief(brief) {
 }
 
 function hasExternalWriteIntent(text) {
-  const writeAction = "(?:create|open|file|update|edit|comment(?: on)?|close|merge|approve|publish|post|send|email|message|push|deploy|release|delete|remove|assign)";
-  const externalTarget = "(?:github|issue|pull request|pr|branch|commit|email|message|post|content|release|deployment|crm)";
+  const writeAction = "(?:create|open|file|update|edit|comment(?: on)?|close|merge|approve|publish|post|send|email|message|push|deploy|release|delete|remove|assign|upload|schedule|write|insert|add)";
+  const externalTarget = "(?:github|issue|pull request|pr|branch|commit|email|message|post|content|release|deployment|crm|google drive|drive|calendar|event|airtable|database|table|record)";
   const actionPattern = new RegExp(`\\b${writeAction}\\b(?:\\s+\\S+){0,5}\\s+\\b${externalTarget}\\b`, "g");
 
   return [...text.matchAll(actionPattern)].some((match) => {

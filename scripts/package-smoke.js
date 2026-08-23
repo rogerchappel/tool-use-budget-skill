@@ -48,6 +48,26 @@ try {
   assert.equal(budget.summary.maxMinutes, 30);
   assert.equal(budget.stages.reduce((sum, stage) => sum + stage.minutes, 0), 30);
 
+  const profile = path.join(consumerDirectory, "profile.json");
+  for (const invalidRoot of [null, [], "profile", 42, true]) {
+    fs.writeFileSync(profile, JSON.stringify(invalidRoot));
+    const invalidResult = spawnSync(
+      bin,
+      ["--brief", brief, "--profile", profile, "--format", "json"],
+      { cwd: consumerDirectory, encoding: "utf8" }
+    );
+    assert.equal(invalidResult.status, 1, JSON.stringify(invalidRoot));
+    assert.match(invalidResult.stderr, /^Profile JSON root must be an object\./);
+    assert.doesNotMatch(invalidResult.stderr, /TypeError|Cannot read properties/);
+  }
+
+  fs.writeFileSync(profile, JSON.stringify({ language: "javascript", packageManager: "npm" }));
+  const profileBudget = JSON.parse(
+    run(bin, ["--brief", brief, "--profile", profile, "--format", "json"], consumerDirectory).stdout
+  );
+  assert.equal(profileBudget.summary.language, "javascript");
+  assert.equal(profileBudget.summary.packageManager, "npm");
+
   for (const actionBrief of [
     "Delete the GitHub issue.",
     "Remove the release.",

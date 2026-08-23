@@ -14,6 +14,9 @@ export function readText(path) {
 export function readProfile(path) {
   if (!path) return DEFAULT_PROFILE;
   const parsed = JSON.parse(readText(path));
+  if (parsed === null || Array.isArray(parsed) || typeof parsed !== "object") {
+    throw new TypeError("Profile JSON root must be an object.");
+  }
   return {
     language: parsed.language || "unknown",
     packageManager: parsed.packageManager || "unknown",

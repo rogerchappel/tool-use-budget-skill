@@ -92,10 +92,12 @@ Run the release-readiness check before promoting the package:
 npm run release:check
 ```
 
-This packs the project into an operating-system temporary directory, installs
-it into a clean temporary consumer, and runs both `tool-use-budget --help` and
-a minimal brief through the packaged binary. Temporary files are removed when
-the check finishes.
+This packs the project into an operating-system temporary directory, verifies
+the tarball contains the required release and support files (including the
+changelog, security policy, license, README, and skill definition), installs it
+into a clean temporary consumer, and runs both `tool-use-budget --help` and a
+minimal brief through the packaged binary. Temporary files are removed when the
+check finishes.
 
 ## Safety Notes
 

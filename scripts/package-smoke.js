@@ -25,6 +25,23 @@ try {
   assert.equal(report.length, 1, "npm pack should produce exactly one artifact");
   assert.equal(report[0].filename, `tool-use-budget-skill-${report[0].version}.tgz`);
 
+  const requiredPackagedFiles = [
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md",
+    "SECURITY.md",
+    "SKILL.md",
+    "bin/tool-use-budget.js",
+    "package.json"
+  ];
+  const packagedFiles = new Set(report[0].files.map(({ path: file }) => file));
+  const missingPackagedFiles = requiredPackagedFiles.filter((file) => !packagedFiles.has(file));
+  assert.equal(
+    missingPackagedFiles.length,
+    0,
+    `npm pack omitted required files: ${missingPackagedFiles.join(", ")}`
+  );
+
   const artifact = path.join(packageDirectory, report[0].filename);
   assert.ok(fs.existsSync(artifact), `packed artifact does not exist: ${artifact}`);
   run("npm", ["install", "--ignore-scripts", "--no-audit", "--no-fund", artifact], consumerDirectory);

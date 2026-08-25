@@ -41,10 +41,14 @@ function hasExternalWriteIntent(text) {
   const externalTarget = "(?:github|issue|pull request|pr|branch|commit|email|message|post|content|release|deployment|crm|google drive|drive|calendar|event|airtable|database|table|record)";
   const actionPattern = new RegExp(`\\b${writeAction}\\b(?:\\s+\\S+){0,5}\\s+\\b${externalTarget}\\b`, "g");
 
-  return [...text.matchAll(actionPattern)].some((match) => {
-    const prefix = text.slice(0, match.index);
-    return !/\b(?:how|whether|who|ways?)\s+to\s+$/.test(prefix);
-  });
+  return text.split(/[.;\n]+/).some((clause) =>
+    [...clause.matchAll(actionPattern)].some((match) => {
+      const prefix = clause.slice(0, match.index);
+      const isResearchFraming = /\b(?:how|whether|who|ways?)\s+to\s+$/.test(prefix);
+      const isExplicitlyNegated = /(?:\bdo\s+not|\bdon't|\bnever)\s+$/.test(prefix);
+      return !isResearchFraming && !isExplicitlyNegated;
+    })
+  );
 }
 
 export function buildBudget(brief, profile = DEFAULT_PROFILE, options = {}) {

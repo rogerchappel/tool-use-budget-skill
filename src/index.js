@@ -1,18 +1,20 @@
 import fs from "node:fs";
 
-const DEFAULT_PROFILE = {
-  language: "unknown",
-  packageManager: "unknown",
-  testCommands: [],
-  riskFlags: []
-};
+function defaultProfile() {
+  return {
+    language: "unknown",
+    packageManager: "unknown",
+    testCommands: [],
+    riskFlags: []
+  };
+}
 
 export function readText(path) {
   return fs.readFileSync(path, "utf8");
 }
 
 export function readProfile(path) {
-  if (!path) return DEFAULT_PROFILE;
+  if (!path) return defaultProfile();
   const parsed = JSON.parse(readText(path));
   if (parsed === null || Array.isArray(parsed) || typeof parsed !== "object") {
     throw new TypeError("Profile JSON root must be an object.");
@@ -51,7 +53,7 @@ function hasExternalWriteIntent(text) {
   );
 }
 
-export function buildBudget(brief, profile = DEFAULT_PROFILE, options = {}) {
+export function buildBudget(brief, profile = defaultProfile(), options = {}) {
   const maxMinutes = validateIntegerOption("maxMinutes", options.maxMinutes, 60, 1);
   const maxExternalWrites = validateIntegerOption("maxExternalWrites", options.maxExternalWrites, 0, 0);
   const intent = analyzeBrief(brief);

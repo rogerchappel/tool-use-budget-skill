@@ -65,6 +65,12 @@ another option cannot be used as the operand.
 
 ## Repo Profile
 
+The `--profile` option is optional. Library callers may likewise call `readProfile()`
+without a path or omit the profile argument to `buildBudget()`. In that case, the
+library uses `unknown` language and package manager values with empty test-command
+and risk-flag arrays. Each call receives isolated defaults, so mutating one returned
+profile or budget cannot change later calls.
+
 ```json
 {
   "language": "javascript",

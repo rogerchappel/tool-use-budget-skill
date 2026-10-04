@@ -95,6 +95,25 @@ primitive JSON values are rejected with `Profile JSON root must be an object.`
 and exit status 1. Omitting `--profile` continues to use `unknown` language and
 package-manager defaults with empty test commands and risk flags.
 
+### Profile templates
+
+The checked-in templates are starting points; tailor commands and flags to the
+specific task and repository before use:
+
+- [`fixtures/profile-research-only.json`](fixtures/profile-research-only.json)
+  captures source/review checks without granting connector writes.
+- [`fixtures/profile-connector-heavy.json`](fixtures/profile-connector-heavy.json)
+  makes connector context explicit and lists verification commands. Its risk
+  flags are descriptive metadata, not permissions: the default external-write
+  allowance remains zero and this dry-run tool never performs writes.
+
+Both files are parsed and used by the release checks. For example:
+
+```bash
+node bin/tool-use-budget.js --brief fixtures/task.md --profile fixtures/profile-research-only.json --format json
+node bin/tool-use-budget.js --brief fixtures/task.md --profile fixtures/profile-connector-heavy.json --format json
+```
+
 ## Verify
 
 Run the release-readiness check before promoting the package:

@@ -7,6 +7,17 @@ import { describe, it } from "node:test";
 import { analyzeBrief, buildBudget, readProfile, renderJson, renderMarkdown } from "../src/index.js";
 
 describe("readProfile", () => {
+  for (const path of ["fixtures/profile-research-only.json", "fixtures/profile-connector-heavy.json"]) {
+    it(`loads the ${path.split("/").at(-1)} template with the expected profile fields`, () => {
+      const profile = readProfile(path);
+      assert.equal(profile.language, "javascript");
+      assert.equal(profile.packageManager, "npm");
+      assert.ok(profile.testCommands.length > 0);
+      assert.ok(profile.riskFlags.length > 0);
+      assert.equal(buildBudget("Review sources and verify findings.", profile).summary.language, "javascript");
+    });
+  }
+
   for (const [label, value] of [
     ["null", null],
     ["an array", []],

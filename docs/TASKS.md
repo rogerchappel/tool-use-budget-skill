@@ -14,5 +14,5 @@
 
 - [x] Document safety boundaries.
 - [x] Add release-candidate notes.
-- [ ] Add templates for research-only and connector-heavy profiles.
+- [x] Add templates for research-only and connector-heavy profiles.
 - [ ] Integrate with run audit output.

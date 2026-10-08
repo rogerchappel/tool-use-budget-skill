@@ -27,8 +27,10 @@
     "bin",
     "src",
     "docs",
+    "CHANGELOG.md",
     "SKILL.md",
     "README.md",
+    "SECURITY.md",
     "LICENSE"
   ],
   "repository": {

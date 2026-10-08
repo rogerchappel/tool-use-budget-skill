@@ -45,8 +45,10 @@ Stage allocations always add up exactly to the declared limit.
 same constraints apply when passing `maxMinutes` and `maxExternalWrites` to
 the `buildBudget` library function. Read-only research about GitHub, issues,
 or pull requests does not count as external-write intent. Action briefs such
-as creating an issue, sending an update, publishing a pull request, or pushing
-a branch do count and produce a warning when the allowance is zero.
+as creating or deleting an issue, sending an update, publishing or assigning
+a pull request, removing a release, or pushing a branch do count and produce
+a warning when the allowance is zero. Research phrasing such as asking how to
+delete an issue remains read-only.
 
 Every value-taking option requires its operand immediately after the flag.
 This includes `--brief`, `--profile`, `--format`, and both numeric limits;

@@ -8,7 +8,11 @@ Use this skill before a long or side-effect-sensitive agent run, especially for 
 
 - Task brief as markdown or plain text.
 - Optional repo profile with language, package manager, test commands, and risk flags.
-- Optional maximum minutes and external-write allowance.
+- Optional maximum minutes as a positive integer (default 60).
+- Optional external-write allowance as a nonnegative integer (default 0).
+
+Each generated stage has a five-minute minimum. The maximum-minutes value must
+be large enough to cover every stage selected from the task brief.
 
 ## Side-Effect Boundaries
 

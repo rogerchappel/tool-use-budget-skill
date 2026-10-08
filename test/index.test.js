@@ -50,6 +50,29 @@ describe("readProfile", () => {
       rmSync(directory, { recursive: true, force: true });
     }
   });
+
+  it("isolates omitted profile defaults across reads and budgets", () => {
+    const first = readProfile();
+    first.language = "javascript";
+    first.packageManager = "npm";
+    first.testCommands.push("npm run compromised");
+    first.riskFlags.push("production");
+
+    assert.deepEqual(readProfile(), {
+      language: "unknown",
+      packageManager: "unknown",
+      testCommands: [],
+      riskFlags: []
+    });
+
+    const budget = buildBudget("Implement a library fix and tests.");
+    assert.equal(budget.summary.language, "unknown");
+    assert.equal(budget.summary.packageManager, "unknown");
+    assert.deepEqual(budget.summary.riskFlags, []);
+    assert.ok(budget.stages.some((stage) =>
+      stage.name === "Verification" && stage.gates.includes("project test command")
+    ));
+  });
 });
 
 describe("analyzeBrief", () => {

@@ -2,6 +2,7 @@ import fs from "node:fs";
 
 const required = [
   "README.md",
+  "package-lock.json",
   "SKILL.md",
   "docs/PRD.md",
   "docs/TASKS.md",

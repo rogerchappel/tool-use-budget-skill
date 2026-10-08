@@ -28,7 +28,12 @@ describe("analyzeBrief", () => {
     "Open a pull request.",
     "Delete the GitHub issue.",
     "Remove the release.",
-    "Assign the pull request."
+    "Assign the pull request.",
+    "Upload the report to Google Drive.",
+    "Schedule a Google Calendar event.",
+    "Write the result to Airtable.",
+    "Insert the result into the database table.",
+    "Add a record to Airtable."
   ]) {
     it(`detects external write intent in: ${brief}`, () => {
       assert.equal(analyzeBrief(brief).wantsExternalWrite, true);
@@ -41,7 +46,13 @@ describe("analyzeBrief", () => {
   for (const brief of [
     "Research how to delete a GitHub issue.",
     "Verify whether to remove the release.",
-    "Find out who to assign the PR to."
+    "Find out who to assign the PR to.",
+    "Research how to upload a report to Google Drive.",
+    "Review whether to schedule a calendar event.",
+    "Verify ways to write records to an Airtable table.",
+    "Research Google Drive upload options.",
+    "Review calendar scheduling options.",
+    "Read the Airtable table."
   ]) {
     it(`keeps research phrasing read-only in: ${brief}`, () => {
       assert.equal(analyzeBrief(brief).wantsExternalWrite, false);
@@ -70,7 +81,10 @@ describe("CLI intent analysis", () => {
   for (const brief of [
     "Delete the GitHub issue.",
     "Remove the release.",
-    "Assign the pull request."
+    "Assign the pull request.",
+    "Upload the report to Google Drive.",
+    "Schedule a Google Calendar event.",
+    "Write the result to Airtable."
   ]) {
     it(`warns when an external-write allowance is zero for: ${brief}`, () => {
       const directory = mkdtempSync(join(tmpdir(), "tool-use-budget-test-"));
@@ -88,6 +102,33 @@ describe("CLI intent analysis", () => {
         const budget = JSON.parse(result.stdout);
         assert.equal(budget.intent.wantsExternalWrite, true);
         assert.match(budget.warnings.join("\n"), /external writes/);
+      } finally {
+        rmSync(directory, { recursive: true, force: true });
+      }
+    });
+  }
+
+  for (const brief of [
+    "Research how to upload a report to Google Drive.",
+    "Review calendar scheduling options.",
+    "Read the Airtable table."
+  ]) {
+    it(`keeps the packaged CLI read-only for: ${brief}`, () => {
+      const directory = mkdtempSync(join(tmpdir(), "tool-use-budget-test-"));
+      const briefPath = join(directory, "brief.md");
+      writeFileSync(briefPath, `${brief}\n`);
+
+      try {
+        const result = spawnSync(process.execPath, [
+          "bin/tool-use-budget.js",
+          "--brief", briefPath,
+          "--format", "json",
+          "--max-external-writes", "0"
+        ], { encoding: "utf8" });
+        assert.equal(result.status, 0, result.stderr);
+        const budget = JSON.parse(result.stdout);
+        assert.equal(budget.intent.wantsExternalWrite, false);
+        assert.doesNotMatch(budget.warnings.join("\n"), /external writes/);
       } finally {
         rmSync(directory, { recursive: true, force: true });
       }

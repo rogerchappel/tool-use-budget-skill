@@ -25,6 +25,11 @@ The skill is dry-run only. It may read local brief/profile files and print a bud
 No approval is needed to create a budget. Explicit approval is required before any downstream workflow performs external writes, publishes content, merges code, installs packages, or spends money.
 Researching GitHub, issues, or pull requests is read-only; creating, updating,
 sending, publishing, or pushing external artifacts is external-write intent.
+Explicit requests to upload to Drive, schedule calendar events, or write,
+insert, or add database, table, record, and Airtable data are also external-write
+intent. Researching those operations or reading their data remains read-only.
+Detection is vocabulary-based, so ambiguous or unsupported connector wording
+still requires manual review before downstream execution.
 
 ## Workflow
 

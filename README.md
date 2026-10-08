@@ -50,6 +50,15 @@ a pull request, removing a release, or pushing a branch do count and produce
 a warning when the allowance is zero. Research phrasing such as asking how to
 delete an issue remains read-only.
 
+The recognized vocabulary also covers explicit third-party writes such as
+uploading a file to Google Drive, scheduling a calendar event, and writing,
+inserting, or adding records to Airtable, a database, or a table. The detector
+requires a write verb followed closely by a supported target. Read-only briefs
+such as researching Drive upload options, reviewing calendar scheduling
+options, or reading an Airtable table do not count. This is a conservative
+word-pattern heuristic, not a complete connector or policy classifier; use the
+stop conditions and explicit approval whenever a brief is ambiguous.
+
 Every value-taking option requires its operand immediately after the flag.
 This includes `--brief`, `--profile`, `--format`, and both numeric limits;
 another option cannot be used as the operand.

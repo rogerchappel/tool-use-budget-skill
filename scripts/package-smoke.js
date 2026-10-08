@@ -51,7 +51,10 @@ try {
   for (const actionBrief of [
     "Delete the GitHub issue.",
     "Remove the release.",
-    "Assign the pull request."
+    "Assign the pull request.",
+    "Upload the report to Google Drive.",
+    "Schedule a Google Calendar event.",
+    "Write the result to Airtable."
   ]) {
     fs.writeFileSync(brief, `${actionBrief}\n`);
     const actionResult = run(
@@ -62,6 +65,22 @@ try {
     const actionBudget = JSON.parse(actionResult.stdout);
     assert.equal(actionBudget.intent.wantsExternalWrite, true, actionBrief);
     assert.match(actionBudget.warnings.join("\n"), /external writes/, actionBrief);
+  }
+
+  for (const researchBrief of [
+    "Research how to upload a report to Google Drive.",
+    "Review calendar scheduling options.",
+    "Read the Airtable table."
+  ]) {
+    fs.writeFileSync(brief, `${researchBrief}\n`);
+    const researchResult = run(
+      bin,
+      ["--brief", brief, "--format", "json", "--max-external-writes", "0"],
+      consumerDirectory
+    );
+    const researchBudget = JSON.parse(researchResult.stdout);
+    assert.equal(researchBudget.intent.wantsExternalWrite, false, researchBrief);
+    assert.doesNotMatch(researchBudget.warnings.join("\n"), /external writes/, researchBrief);
   }
   console.log(`package smoke ok: ${report[0].filename}`);
 } finally {

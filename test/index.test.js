@@ -68,6 +68,25 @@ describe("analyzeBrief", () => {
   });
 
   for (const brief of [
+    "Do not delete the GitHub issue; only review it.",
+    "Don't publish the release; verify its metadata.",
+    "Never send the email; draft it for review."
+  ]) {
+    it(`treats explicitly negated external writes as read-only in: ${brief}`, () => {
+      const budget = buildBudget(brief, undefined, { maxExternalWrites: 0 });
+
+      assert.equal(budget.intent.wantsExternalWrite, false);
+      assert.doesNotMatch(budget.warnings.join("\n"), /external writes/);
+    });
+  }
+
+  it("still detects an affirmative external write after a negated one", () => {
+    const intent = analyzeBrief("Do not delete the GitHub issue; publish the release instead.");
+
+    assert.equal(intent.wantsExternalWrite, true);
+  });
+
+  for (const brief of [
     "Create a GitHub issue.",
     "Send an issue update.",
     "Publish a PR.",

@@ -8,16 +8,31 @@ function parseArgs(argv) {
     if (arg === "--brief") args.brief = argv[++index];
     else if (arg === "--profile") args.profile = argv[++index];
     else if (arg === "--format") args.format = argv[++index];
-    else if (arg === "--max-minutes") args.maxMinutes = Number(argv[++index]);
-    else if (arg === "--max-external-writes") args.maxExternalWrites = Number(argv[++index]);
+    else if (arg === "--max-minutes") {
+      args.maxMinutes = readNumericOperand(argv, ++index, "--max-minutes");
+    } else if (arg === "--max-external-writes") {
+      args.maxExternalWrites = readNumericOperand(argv, ++index, "--max-external-writes");
+    }
     else if (arg === "--help" || arg === "-h") args.help = true;
     else throw new Error(`Unknown argument: ${arg}`);
   }
   return args;
 }
 
+function readNumericOperand(argv, index, flag) {
+  const value = argv[index];
+  if (value === undefined || value.startsWith("--")) {
+    throw new Error(`${flag} requires a numeric value.`);
+  }
+  return Number(value);
+}
+
 function usage() {
-  return "Usage: tool-use-budget --brief <file> [--profile <file>] [--format markdown|json] [--max-minutes n] [--max-external-writes n]\n";
+  return [
+    "Usage: tool-use-budget --brief <file> [--profile <file>] [--format markdown|json]",
+    "       [--max-minutes <positive-integer>] [--max-external-writes <nonnegative-integer>]",
+    ""
+  ].join("\n");
 }
 
 try {

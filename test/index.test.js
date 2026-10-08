@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { describe, it } from "node:test";
 import { analyzeBrief, buildBudget, renderMarkdown } from "../src/index.js";
 
@@ -9,6 +10,51 @@ describe("analyzeBrief", () => {
     assert.equal(intent.wantsContent, true);
     assert.equal(intent.wantsExternalWrite, true);
   });
+});
+
+describe("CLI numeric limits", () => {
+  function runCli(...args) {
+    return spawnSync(process.execPath, ["bin/tool-use-budget.js", "--brief", "fixtures/task.md", ...args], {
+      encoding: "utf8"
+    });
+  }
+
+  it("reports an exact 45-minute allocation", () => {
+    const result = runCli("--format", "json", "--max-minutes", "45");
+    assert.equal(result.status, 0, result.stderr);
+    const budget = JSON.parse(result.stdout);
+
+    assert.equal(budget.summary.maxMinutes, 45);
+    assert.equal(budget.stages.reduce((sum, stage) => sum + stage.minutes, 0), 45);
+  });
+
+  for (const flag of ["--max-minutes", "--max-external-writes"]) {
+    it(`rejects a missing ${flag} operand`, () => {
+      const result = runCli(flag);
+
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, new RegExp(`${flag} requires a numeric value`));
+      assert.match(result.stderr, /Usage: tool-use-budget/);
+    });
+  }
+
+  for (const value of ["0", "-1", "NaN", "1.5"]) {
+    it(`rejects invalid max minutes ${value}`, () => {
+      const result = runCli("--max-minutes", value);
+
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /maxMinutes must be a positive integer/);
+    });
+  }
+
+  for (const value of ["-1", "NaN", "1.5"]) {
+    it(`rejects invalid external writes ${value}`, () => {
+      const result = runCli("--max-external-writes", value);
+
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /maxExternalWrites must be a nonnegative integer/);
+    });
+  }
 });
 
 describe("buildBudget", () => {

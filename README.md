@@ -79,6 +79,11 @@ Markdown characters and HTML delimiters are escaped, while line breaks are
 normalized to `<br>`. This keeps commands containing pipes, backslashes, or
 newlines inside the documented five-column stage table.
 
+The profile file must contain a JSON object at its root. `null`, arrays, and
+primitive JSON values are rejected with `Profile JSON root must be an object.`
+and exit status 1. Omitting `--profile` continues to use `unknown` language and
+package-manager defaults with empty test commands and risk flags.
+
 ## Verify
 
 Run the release-readiness check before promoting the package:

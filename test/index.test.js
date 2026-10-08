@@ -4,7 +4,53 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
-import { analyzeBrief, buildBudget, renderJson, renderMarkdown } from "../src/index.js";
+import { analyzeBrief, buildBudget, readProfile, renderJson, renderMarkdown } from "../src/index.js";
+
+describe("readProfile", () => {
+  for (const [label, value] of [
+    ["null", null],
+    ["an array", []],
+    ["a string", "profile"],
+    ["a number", 42],
+    ["a boolean", true]
+  ]) {
+    it(`rejects ${label} as the JSON root`, () => {
+      const directory = mkdtempSync(join(tmpdir(), "tool-use-budget-profile-"));
+      const profilePath = join(directory, "profile.json");
+      writeFileSync(profilePath, JSON.stringify(value));
+
+      try {
+        assert.throws(() => readProfile(profilePath), /Profile JSON root must be an object\./);
+      } finally {
+        rmSync(directory, { recursive: true, force: true });
+      }
+    });
+  }
+
+  it("preserves valid object profiles and the omitted-profile defaults", () => {
+    const directory = mkdtempSync(join(tmpdir(), "tool-use-budget-profile-"));
+    const profilePath = join(directory, "profile.json");
+    const profile = {
+      language: "javascript",
+      packageManager: "npm",
+      testCommands: ["npm test"],
+      riskFlags: ["public-repo"]
+    };
+    writeFileSync(profilePath, JSON.stringify(profile));
+
+    try {
+      assert.deepEqual(readProfile(profilePath), profile);
+      assert.deepEqual(readProfile(), {
+        language: "unknown",
+        packageManager: "unknown",
+        testCommands: [],
+        riskFlags: []
+      });
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+});
 
 describe("analyzeBrief", () => {
   it("detects code, content, and external write intent", () => {

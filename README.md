@@ -103,6 +103,8 @@ check finishes.
 
 This tool is planning-only. It does not run shell commands, write files, call connectors, or touch external accounts. It surfaces approval gates so a separate agent can ask before taking side-effecting actions.
 
+External-write classification recognizes explicit `do not`, `don't`, and `never` instructions as read-only constraints. An affirmative write elsewhere in the same brief is still classified as an external write.
+
 ## Project Status
 
 Release-candidate MVP. See [docs/PRD.md](docs/PRD.md), [docs/TASKS.md](docs/TASKS.md), and [docs/ORCHESTRATION.md](docs/ORCHESTRATION.md).

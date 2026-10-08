@@ -1,0 +1,6 @@
+{
+  "language": "javascript",
+  "packageManager": "npm",
+  "testCommands": ["npm test", "npm run check"],
+  "riskFlags": ["public-repo", "research-only"]
+}

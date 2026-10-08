@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Commit npm lock metadata and require frozen `npm ci` installs in CI and
+  release-readiness verification.
 - Recognize issue deletion, release removal, and pull-request assignment as external-write intent.
 - Distinguish read-only GitHub, issue, and pull-request research from external-write actions.
 - Validate CLI and library numeric limits and reject missing or infeasible values.

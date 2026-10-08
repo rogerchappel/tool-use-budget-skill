@@ -5,10 +5,15 @@ Tool Use Budget Skill is a dry-run CLI and library for turning an agent task bri
 ## Quickstart
 
 ```bash
+npm ci
 npm test
 npm run smoke
 node bin/tool-use-budget.js --brief fixtures/task.md --profile fixtures/profile.json --format json
 ```
+
+Use `npm ci` for contributor and release verification. The committed lockfile
+is the reproducible install contract; if `package.json` changes, refresh it
+with `npm install --package-lock-only` and commit both files together.
 
 ## Install from source
 
@@ -95,10 +100,12 @@ package-manager defaults with empty test commands and risk flags.
 Run the release-readiness check before promoting the package:
 
 ```bash
+npm ci
 npm run release:check
 ```
 
-This packs the project into an operating-system temporary directory, verifies
+The clean install fails if package metadata and the committed lockfile disagree.
+The release check then packs the project into an operating-system temporary directory, verifies
 the tarball contains the required release and support files (including the
 changelog, security policy, license, README, and skill definition), installs it
 into a clean temporary consumer, and runs both `tool-use-budget --help` and a

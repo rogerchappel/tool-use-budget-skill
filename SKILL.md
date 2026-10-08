@@ -23,6 +23,8 @@ The skill is dry-run only. It may read local brief/profile files and print a bud
 ## Approval Requirements
 
 No approval is needed to create a budget. Explicit approval is required before any downstream workflow performs external writes, publishes content, merges code, installs packages, or spends money.
+Researching GitHub, issues, or pull requests is read-only; creating, updating,
+sending, publishing, or pushing external artifacts is external-write intent.
 
 ## Workflow
 

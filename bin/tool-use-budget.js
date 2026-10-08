@@ -5,9 +5,9 @@ function parseArgs(argv) {
   const args = { format: "markdown", maxExternalWrites: 0 };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
-    if (arg === "--brief") args.brief = argv[++index];
-    else if (arg === "--profile") args.profile = argv[++index];
-    else if (arg === "--format") args.format = argv[++index];
+    if (arg === "--brief") args.brief = readOperand(argv, ++index, arg);
+    else if (arg === "--profile") args.profile = readOperand(argv, ++index, arg);
+    else if (arg === "--format") args.format = readOperand(argv, ++index, arg);
     else if (arg === "--max-minutes") {
       args.maxMinutes = readNumericOperand(argv, ++index, "--max-minutes");
     } else if (arg === "--max-external-writes") {
@@ -17,6 +17,14 @@ function parseArgs(argv) {
     else throw new Error(`Unknown argument: ${arg}`);
   }
   return args;
+}
+
+function readOperand(argv, index, flag) {
+  const value = argv[index];
+  if (value === undefined || value.startsWith("--")) {
+    throw new Error(`${flag} requires a value.`);
+  }
+  return value;
 }
 
 function readNumericOperand(argv, index, flag) {

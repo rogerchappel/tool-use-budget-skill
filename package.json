@@ -10,7 +10,7 @@
     "test": "node --test",
     "check": "node scripts/check.js",
     "smoke": "node bin/tool-use-budget.js --brief fixtures/task.md --profile fixtures/profile.json --format markdown --max-minutes 45",
-    "package:smoke": "npm pack --dry-run",
+    "package:smoke": "node scripts/package-smoke.js",
     "release:check": "npm run check && npm test && npm run smoke && npm run package:smoke"
   },
   "keywords": [

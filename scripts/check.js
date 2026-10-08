@@ -7,6 +7,7 @@ const required = [
   "docs/TASKS.md",
   "docs/ORCHESTRATION.md",
   "docs/RELEASE_CANDIDATE.md",
+  "scripts/package-smoke.js",
   "src/index.js",
   "bin/tool-use-budget.js",
   "fixtures/task.md",
@@ -21,8 +22,8 @@ if (missing.length) {
 }
 
 const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
-if (!pkg.bin || !pkg.scripts?.smoke || !pkg.scripts?.test) {
-  console.error("package.json must expose bin, test, and smoke scripts.");
+if (!pkg.bin || !pkg.scripts?.smoke || !pkg.scripts?.["package:smoke"] || !pkg.scripts?.["release:check"] || !pkg.scripts?.test) {
+  console.error("package.json must expose bin, test, smoke, package:smoke, and release:check scripts.");
   process.exit(1);
 }
 

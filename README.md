@@ -140,3 +140,37 @@ External-write classification recognizes explicit `do not`, `don't`, and `never`
 ## Project Status
 
 Release-candidate MVP. See [docs/PRD.md](docs/PRD.md), [docs/TASKS.md](docs/TASKS.md), and [docs/ORCHESTRATION.md](docs/ORCHESTRATION.md).
+
+## Run-audit integration
+
+A run audit can provide a task profile and budget limits as JSON. Use
+`scripts/run-audit-budget.js <audit.json> <brief.md>` to consume that record and
+print the generated budget as JSON. The audit input has this shape:
+
+```json
+{
+  "profile": {
+    "language": "javascript",
+    "packageManager": "npm",
+    "testCommands": ["npm test", "npm run check"],
+    "riskFlags": ["public-repo"]
+  },
+  "maxMinutes": 45,
+  "maxExternalWrites": 0
+}
+```
+
+`fixtures/run-audit.json` and `fixtures/task.md` form a runnable example:
+
+```sh
+node scripts/run-audit-budget.js fixtures/run-audit.json fixtures/task.md
+```
+
+The integration only reads the audit and brief files; it produces a budget
+report and does not perform any of the task's proposed actions. Run
+'test/run-audit.test.js' through `npm test` to verify the fixture-backed expected
+report and malformed-input handling.
+
+Run-audit records may also include their own `brief` string. When present, the
+integration uses that embedded brief and does not read the positional brief
+file; otherwise it reads the supplied brief path.

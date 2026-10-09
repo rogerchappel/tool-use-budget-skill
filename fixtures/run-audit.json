@@ -1,0 +1,11 @@
+{
+  "brief": "Review source and verify findings for the production repository.",
+  "profile": {
+    "language": "javascript",
+    "packageManager": "npm",
+    "testCommands": ["npm test", "npm run check"],
+    "riskFlags": ["public-repo"]
+  },
+  "maxMinutes": 45,
+  "maxExternalWrites": 0
+}

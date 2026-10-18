@@ -19,11 +19,20 @@ export function readProfile(path) {
   if (parsed === null || Array.isArray(parsed) || typeof parsed !== "object") {
     throw new TypeError("Profile JSON root must be an object.");
   }
+  const language = parsed.language ?? "unknown";
+  const packageManager = parsed.packageManager ?? "unknown";
+  if (typeof language !== "string") throw new TypeError("Profile language must be a string.");
+  if (typeof packageManager !== "string") throw new TypeError("Profile packageManager must be a string.");
+  for (const field of ["testCommands", "riskFlags"]) {
+    if (parsed[field] !== undefined && (!Array.isArray(parsed[field]) || !parsed[field].every((item) => typeof item === "string"))) {
+      throw new TypeError(`Profile ${field} must be an array of strings.`);
+    }
+  }
   return {
-    language: parsed.language || "unknown",
-    packageManager: parsed.packageManager || "unknown",
-    testCommands: Array.isArray(parsed.testCommands) ? parsed.testCommands.map(String) : [],
-    riskFlags: Array.isArray(parsed.riskFlags) ? parsed.riskFlags.map(String) : []
+    language: language || "unknown",
+    packageManager: packageManager || "unknown",
+    testCommands: parsed.testCommands ?? [],
+    riskFlags: parsed.riskFlags ?? []
   };
 }
 

@@ -38,6 +38,22 @@ describe("readProfile", () => {
     });
   }
 
+  for (const [field, value] of [["language", false], ["language", 0], ["packageManager", false], ["packageManager", 0], ["testCommands", "npm test"], ["testCommands", [false]], ["riskFlags", {}], ["riskFlags", [0]]]) {
+    it(`rejects malformed ${field} values deterministically in the CLI`, () => {
+      const directory = mkdtempSync(join(tmpdir(), "tool-use-budget-profile-"));
+      const profilePath = join(directory, "profile.json");
+      const briefPath = join(directory, "brief.md");
+      writeFileSync(profilePath, JSON.stringify({ [field]: value }));
+      writeFileSync(briefPath, "Review the result.\n");
+      try {
+        const result = spawnSync(process.execPath, ["bin/tool-use-budget.js", "--brief", briefPath, "--profile", profilePath, "--format", "json"], { encoding: "utf8" });
+        assert.equal(result.status, 1);
+        assert.match(result.stderr, new RegExp(`Profile ${field} must be`));
+        assert.equal(result.stdout, "");
+      } finally { rmSync(directory, { recursive: true, force: true }); }
+    });
+  }
+
   it("preserves valid object profiles and the omitted-profile defaults", () => {
     const directory = mkdtempSync(join(tmpdir(), "tool-use-budget-profile-"));
     const profilePath = join(directory, "profile.json");
